@@ -33,7 +33,7 @@ public class Emojis {
     public static final String GREAT = "\uD83C\uDF89";
     public static final String MANAGER = "\uD83D\uDE4E\uD83C\uDFFB\u200D♂️";
     public static final String LOOK = "\uD83D\uDE44";
-    public static final String GENRE= "\uD83C\uDFAD";
+    public static final String GENRE = "\uD83C\uDFAD";
     public static final String SCIENCE = "\uD83D\uDD2C";
     public static final String HORROR = "\uD83D\uDC80";
     public static final String FICTION = "\uD83E\uDDDC\uD83C\uDFFB\u200D♀️";
@@ -42,4 +42,5 @@ public class Emojis {
     public static final String ADVENTURE = "\uD83D\uDD75️\u200D♂️";
     public static final String OTHER = "\uD83D\uDCA0";
     public static final String LIMIT = "✖️";
+    public static final String HACK = "\uD83E\uDD2C";
 }

@@ -218,12 +218,12 @@ public class BookRepository extends AbstractRepository {
         return null;
     }
 
-    public ArrayList<String> getAllBooks() {
+    public ArrayList<String> getIdBooks() {
         ArrayList<String> list = new ArrayList<>();
         Connection connection = getConnection();
         try {
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(PConfig.get("books.select.all.query"));
+            ResultSet resultSet = statement.executeQuery(PConfig.get("books.select.all.id.query"));
             while (resultSet.next()) {
                 list.add(resultSet.getString("id"));
             }
@@ -231,6 +231,25 @@ public class BookRepository extends AbstractRepository {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public ArrayList<Book> getAllBooks() {
+        ArrayList<Book> books = new ArrayList<>();
+        Connection connection = getConnection();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(PConfig.get("books.select.all.query"));
+            while (resultSet.next()) {
+                Book book = Book.builder()
+                        .id(resultSet.getString("id"))
+                        .name(resultSet.getString("name"))
+                        .build();
+                books.add(book);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return books;
     }
 
     public boolean isHaveBookWithUser(String chatId, String bookId) {

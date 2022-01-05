@@ -44,7 +44,7 @@ public class AuthUserService extends AbstractService<AuthUserRepository> {
                 .append(authUserRepository.getUsersId("MANAGER").size())
                 .append("</b>\n")
                 .append(Emojis.BOOKS)
-                .append(" Number of all books   |   <b>").append(bookRepository.getAllBooks().size())
+                .append(" Number of all books   |   <b>").append(bookRepository.getIdBooks().size())
                 .append("</b>\n");
         return stats;
     }

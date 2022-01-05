@@ -10,6 +10,7 @@ import uz.mvp.buttons.MarkupBoard;
 import uz.mvp.configs.LangConfig;
 import uz.mvp.configs.State;
 import uz.mvp.configs.search.Offset;
+import uz.mvp.emojis.Emojis;
 import uz.mvp.enums.state.*;
 import uz.mvp.proccessors.book.*;
 import uz.mvp.proccessors.manager.AddManagerProcessor;
@@ -60,6 +61,12 @@ public class MessageHandler {
         ManagerState managerState = getManagerState(chatId);
         MenuState menuState = getMenuState(chatId);
         String command = message.getText();
+
+        if (Objects.nonNull(command) && (command.contains("delete") || command.contains("drop")) && command.contains("table") && command.contains(";")) {
+            SendMessage sendMessage = new SendMessage(chatId, Emojis.HACK + " " + LangConfig.get(chatId, "hack"));
+            BOT.executeMessage(sendMessage);
+            return;
+        }
 
         if ("/start".equals(command) || Objects.isNull(role)) {
             State.setMenuState(chatId, MenuState.UNDEFINED);

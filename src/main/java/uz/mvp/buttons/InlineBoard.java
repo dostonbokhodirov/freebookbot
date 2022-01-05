@@ -61,7 +61,7 @@ public class InlineBoard {
         List<InlineKeyboardButton> numberButtons1 = new ArrayList<>();
         List<String> numbers = new ArrayList<>(Arrays.asList("1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "\uD83D\uDD1F"));
         int i = 1;
-        if (books.size() <= 5) {
+        if (books.size() <= limit) {
             for (Book book : books) {
                 InlineKeyboardButton button = new InlineKeyboardButton(numbers.get(i++ - 1));
                 String id = bookRepository.getId(book.getId());
