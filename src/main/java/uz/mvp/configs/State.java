@@ -3,6 +3,7 @@ package uz.mvp.configs;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import uz.mvp.enums.state.*;
+import uz.mvp.proccessors.post.PostProcessor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +25,6 @@ public class State {
     private static final Map<String, ManagerState> managerState = new HashMap<>();
     private static final Map<String, SearchState> searchState = new HashMap<>();
     private static final Map<String, Integer> limitState = new HashMap<>();
-
 
     public synchronized static void setState(String chatId, UState state) {
         userState.put(chatId, state);
@@ -56,6 +56,10 @@ public class State {
 
     public synchronized static void setSearchState(String chatId, SearchState state) {
         searchState.put(chatId, state);
+    }
+
+    public static void setLimitState(String chatId, Integer limit) {
+        limitState.put(chatId, limit);
     }
 
     public static UState getState(String chatId) {
@@ -110,9 +114,5 @@ public class State {
             limitState.put(chatId, 5);
         }
         return limitState.get(chatId);
-    }
-
-    public static void setLimitState(String chatId, Integer limit) {
-        limitState.put(chatId, limit);
     }
  }

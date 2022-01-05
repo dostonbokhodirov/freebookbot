@@ -16,6 +16,7 @@ import uz.mvp.proccessors.book.*;
 import uz.mvp.proccessors.manager.AddManagerProcessor;
 import uz.mvp.proccessors.manager.RemoveManagerProcessor;
 import uz.mvp.proccessors.menu.MenuProcessor;
+import uz.mvp.proccessors.post.PostProcessor;
 import uz.mvp.proccessors.setting.SettingsProcessor;
 import uz.mvp.proccessors.user.AuthorizationProcessor;
 import uz.mvp.proccessors.user.UserListProcessor;
@@ -46,6 +47,7 @@ public class MessageHandler {
     private static final UserListProcessor userListProcessor = UserListProcessor.getInstance();
     private static final AddManagerProcessor addManagerProcessor = AddManagerProcessor.getInstance();
     private static final RemoveManagerProcessor removeManagerProcessor = RemoveManagerProcessor.getInstance();
+    private static final PostProcessor postProcessor = PostProcessor.getInstance();
     private static final AuthUserService authUserService = AuthUserService.getInstance();
     private static final BotService botService = BotService.getInstance();
     private static final Offset offset = Offset.getInstance();
@@ -104,8 +106,20 @@ public class MessageHandler {
                 userListProcessor.process(message);
             }
             return;
+        } else if ("/post".equals(command)) {
+            if (!role.equals("USER")) {
+                State.setMenuState(chatId, MenuState.POST);
+                SendMessage sendMessage = new SendMessage(chatId, LangConfig.get(chatId, "send.post"));
+                BOT.executeMessage(sendMessage);
+                return;
+            }
         } else if ("/stats".equals(command)) {
-            StringBuilder text = authUserService.getStatsMessage();
+            StringBuilder text = authUserService.getStatsMessage(chatId);
+            SendMessage sendMessage = new SendMessage(chatId, text.toString());
+            BOT.executeMessage(sendMessage);
+            return;
+        } else if ("/whoami".equals(command)) {
+            StringBuilder text = authUserRepository.getUser(chatId, chatId);
             SendMessage sendMessage = new SendMessage(chatId, text.toString());
             BOT.executeMessage(sendMessage);
             return;
@@ -141,6 +155,8 @@ public class MessageHandler {
             addManagerProcessor.process(message, managerState);
         } else if (menuState.equals(MenuState.REMOVE_MANAGER)) {
             removeManagerProcessor.process(message, managerState);
+        } else if (menuState.equals(MenuState.POST)) {
+            postProcessor.process(message);
         }
     }
 

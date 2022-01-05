@@ -142,7 +142,7 @@ public class AuthUserRepository extends AbstractRepository {
             String role = resultSet.getString("role");
             String userName = resultSet.getString("user_name");
             String createdAt = resultSet.getString("created_at");
-            stringBuilder.append("ID: ").append(userId).append("\n")
+            stringBuilder.append("ID: <code>").append(userId).append("</code>\n")
                     .append(LangConfig.get(chatId, "user.full.name")).append(" <b>").append(fullName).append("</b>\n")
                     .append(LangConfig.get(chatId, "user.age")).append(" <b>").append(age).append("</b>\n")
                     .append(LangConfig.get(chatId, "user.gender")).append(" <code>").append(gender).append("</code>\n")
