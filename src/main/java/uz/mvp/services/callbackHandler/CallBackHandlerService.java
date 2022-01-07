@@ -12,11 +12,13 @@ import uz.mvp.buttons.InlineBoard;
 import uz.mvp.buttons.MarkupBoard;
 import uz.mvp.configs.LangConfig;
 import uz.mvp.configs.State;
+import uz.mvp.configs.add.BookId;
 import uz.mvp.configs.search.MSG;
 import uz.mvp.emojis.Emojis;
 import uz.mvp.entity.book.Book;
 import uz.mvp.entity.user.User;
 import uz.mvp.enums.state.MenuState;
+import uz.mvp.enums.state.SearchState;
 import uz.mvp.enums.state.SettingsState;
 import uz.mvp.enums.state.UState;
 import uz.mvp.proccessors.setting.SettingsProcessor;
@@ -24,6 +26,8 @@ import uz.mvp.repository.authuser.AuthUserRepository;
 import uz.mvp.repository.book.BookRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import static uz.mvp.configs.State.setState;
@@ -37,6 +41,7 @@ public class CallBackHandlerService {
     private static final AuthUserRepository authUserRepository = AuthUserRepository.getInstance();
     private static final BookRepository bookRepository = BookRepository.getInstance();
     private static final MSG msg = MSG.getInstance();
+    private static final BookId bookId = BookId.getInstance();
     private static final SettingsProcessor settingsProcessor = SettingsProcessor.getInstance();
 
     public void languageMessage(Message message, String data) {
@@ -77,7 +82,11 @@ public class CallBackHandlerService {
         editMessageText.setChatId(chatId);
         editMessageText.setMessageId(message.getMessageId());
         if (State.getMenuState(chatId).equals(MenuState.SEARCH)) {
-            books = bookRepository.getBooksByName(msg.getSearchMessage(chatId), State.getLimitState(chatId), offset);
+            if (State.getSearchState(chatId).equals(SearchState.NAME)) {
+                books = bookRepository.getBooksByName(msg.getSearchMessage(chatId), State.getLimitState(chatId), offset);
+            } else {
+                books = bookRepository.getBooksByGenre(msg.getSearchGenre(chatId), State.getLimitState(chatId), offset);
+            }
             editMessageText.setText(getBookMessage(books, chatId).toString());
             editMessageText.setReplyMarkup(InlineBoard.book(books, State.getLimitState(chatId), offset));
             BOT.executeMessage(editMessageText);
@@ -111,7 +120,11 @@ public class CallBackHandlerService {
         editMessageText.setChatId(chatId);
         editMessageText.setMessageId(message.getMessageId());
         if (State.getMenuState(chatId).equals(MenuState.SEARCH)) {
-            books = bookRepository.getBooksByName(msg.getSearchMessage(chatId), State.getLimitState(chatId), offset);
+            if (State.getSearchState(chatId).equals(SearchState.NAME)) {
+                books = bookRepository.getBooksByName(msg.getSearchMessage(chatId), State.getLimitState(chatId), offset);
+            } else {
+                books = bookRepository.getBooksByGenre(msg.getSearchGenre(chatId), State.getLimitState(chatId), offset);
+            }
             editMessageText.setText(getBookMessage(books, chatId).toString());
             editMessageText.setReplyMarkup(InlineBoard.book(books, State.getLimitState(chatId), offset));
             BOT.executeMessage(editMessageText);
@@ -139,42 +152,44 @@ public class CallBackHandlerService {
     }
 
     public void getDocument(String data, String chatId) {
-        String bookId = bookRepository.getBookId(data);
-        if (Objects.isNull(bookId)) {
+        String id = bookRepository.getBookId(data);
+        bookId.setBookId(chatId, bookRepository.getBookId(data));
+        if (Objects.isNull(id)) {
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(chatId);
             StringBuilder text = authUserRepository.getUser(chatId, data);
             sendMessage.setText(text.toString());
             BOT.executeMessage(sendMessage);
         } else {
-            Integer count = bookRepository.getDownloadsCount(bookId);
-            bookRepository.save("downloads_count", count + 1, bookId);
-            InputFile inputFile = new InputFile(bookId);
-            SendDocument sendDocument = new SendDocument(chatId, inputFile);
-            BOT.executeMessage(sendDocument);
-            if (!bookRepository.isHaveBookWithUser(chatId, bookId)) {
-                bookRepository.addDownloads(chatId, bookId);
+            if (!State.getMenuState(chatId).equals(MenuState.DOWNLOADED)) {
+                Integer count = bookRepository.getDownloadsCount(id);
+                bookRepository.save("downloads_count", count + 1, id);
             }
+            InputFile inputFile = new InputFile(id);
+            SendDocument sendDocument = new SendDocument(chatId, inputFile);
+            sendDocument.setReplyMarkup(InlineBoard.documentButtons(chatId, State.getMenuState(chatId)));
+            BOT.executeMessage(sendDocument);
         }
     }
 
     public StringBuilder getBookMessage(ArrayList<Book> books, String chatId) {
         StringBuilder messageText = new StringBuilder();
-        int i = 1;
+        List<String> numbers = new ArrayList<>(Arrays.asList("1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "\uD83D\uDD1F"));
+        int i = 0;
         if (books.size() == 0) {
             messageText.append(LangConfig.get(chatId, "no.book"));
         } else {
             for (Book book : books) {
                 double size = Math.round(Double.parseDouble(book.getSize()) / 1048576 * 100.0) / 100.0;
                 messageText.append("<code>")
-                        .append(i++).append(".</code> ")
+                        .append(numbers.get(i++)).append("</code> ")
                         .append(LangConfig.get(chatId, "book.name"))
                         .append(" <b>").append(book.getName()).append("</b>\n")
-                        .append("    ").append(LangConfig.get(chatId, "book.size")).append(" <i>")
+                        .append("      ").append(LangConfig.get(chatId, "book.size")).append(" <i>")
                         .append(size).append(" ").append(LangConfig.get(chatId, "mb")).append("</i>\n")
-                        .append("    ").append(LangConfig.get(chatId, "uploaded.at")).append(" <code>")
-                        .append(book.getUploadedAt()).append("</code>\n").append("    ")
-                        .append(LangConfig.get(chatId, "number.downloads")).append(" <b>")
+                        .append("      ").append(LangConfig.get(chatId, "uploaded.at")).append(" <code>")
+                        .append(book.getUploadedAt()).append("</code>\n")
+                        .append("      ").append(LangConfig.get(chatId, "number.downloads")).append(" <b>")
                         .append(book.getDownloadsCount()).append("</b>\n");
             }
         }
@@ -183,20 +198,21 @@ public class CallBackHandlerService {
 
     public StringBuilder getUserMessage(ArrayList<User> users, String chatId) {
         StringBuilder messageText = new StringBuilder();
-        int i = 1;
+        List<String> numbers = new ArrayList<>(Arrays.asList("1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "\uD83D\uDD1F"));
+        int i = 0;
         if (users.size() == 0) {
             messageText.append(LangConfig.get(chatId, "no.user"));
         } else {
             for (User user : users) {
                 messageText.append("<code>")
-                        .append(i++).append(".</code> ")
+                        .append(numbers.get(i++)).append("</code> ")
                         .append(LangConfig.get(chatId, "user.full.name")).append(" <b>")
                         .append(user.getFullName()).append("</b>\n")
-                        .append("    ").append(LangConfig.get(chatId, "user.age")).append(" <b>")
+                        .append("     ").append(LangConfig.get(chatId, "user.age")).append(" <b>")
                         .append(user.getAge()).append("</b>\n")
-                        .append("    ").append(LangConfig.get(chatId, "user.name")).append(" @")
+                        .append("     ").append(LangConfig.get(chatId, "user.name")).append(" @")
                         .append(user.getUserName()).append("\n")
-                        .append("    ").append(LangConfig.get(chatId, "user.role")).append(" <code>")
+                        .append("     ").append(LangConfig.get(chatId, "user.role")).append(" <code>")
                         .append(user.getRole()).append("</code>\n");
             }
         }

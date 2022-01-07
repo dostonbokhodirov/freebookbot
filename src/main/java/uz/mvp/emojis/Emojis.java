@@ -43,4 +43,5 @@ public class Emojis {
     public static final String OTHER = "\uD83D\uDCA0";
     public static final String LIMIT = "✖️";
     public static final String HACK = "\uD83E\uDD2C";
+    public static final String DOWNLOADED = "\uD83D\uDCE5";
 }

@@ -37,7 +37,6 @@ public class RemoveBookProcessor {
             ArrayList<Book> books = bookRepository.getBooksByName(text, State.getLimitState(chatId), 0);
             if (books.size() == 0) {
                 SendMessage sendMessage = new SendMessage(chatId,  LangConfig.get(chatId, "no.book") + " " + Emojis.CONFUSE);
-                State.setSearchState(chatId, SearchState.UNDEFINED);
                 BOT.executeMessage(sendMessage);
             } else {
                 bookRepository.delete(text);

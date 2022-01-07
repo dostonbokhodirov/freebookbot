@@ -7,6 +7,7 @@ import uz.mvp.configs.LangConfig;
 import uz.mvp.emojis.Emojis;
 import uz.mvp.entity.book.Book;
 import uz.mvp.entity.user.User;
+import uz.mvp.enums.state.MenuState;
 import uz.mvp.repository.book.BookRepository;
 
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ public class InlineBoard {
         List<InlineKeyboardButton> numberButtons1 = new ArrayList<>();
         List<String> numbers = new ArrayList<>(Arrays.asList("1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "\uD83D\uDD1F"));
         int i = 1;
-        if (books.size() <= limit) {
+        if (books.size() <= 5) {
             for (Book book : books) {
                 InlineKeyboardButton button = new InlineKeyboardButton(numbers.get(i++ - 1));
                 String id = bookRepository.getId(book.getId());
@@ -224,6 +225,32 @@ public class InlineBoard {
         row1.add(ten);
         buttons.add(row1);
 
+        board.setKeyboard(buttons);
+        return board;
+    }
+
+    public static ReplyKeyboard documentButtons(String chatId, MenuState menuState) {
+        InlineKeyboardMarkup board = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        if (!menuState.equals(MenuState.DOWNLOADED)) {
+            button.setText(Emojis.ADD_BOOK);
+            button.setCallbackData("add");
+        }
+        else {
+            button.setText(Emojis.REMOVE_BOOK);
+            button.setCallbackData("remove");
+        }
+        row.add(button);
+
+        InlineKeyboardButton cancel = new InlineKeyboardButton();
+        cancel.setText(Emojis.REMOVE);
+        cancel.setCallbackData("cancelDocument");
+        row.add(cancel);
+
+        buttons.add(row);
         board.setKeyboard(buttons);
         return board;
     }

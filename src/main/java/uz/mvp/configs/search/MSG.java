@@ -13,13 +13,22 @@ import java.util.Map;
 public class MSG {
     private static final MSG instance = new MSG();
     private static final Map<String, String> searchMessage = new HashMap<>();
+    private static final Map<String, String> searchGenre = new HashMap<>();
 
     public String getSearchMessage(String chatId) {
         return searchMessage.get(chatId);
     }
 
+    public String getSearchGenre(String chatId) {
+        return searchGenre.get(chatId);
+    }
+
     public void setSearchMessage(String chatId, String message) {
         searchMessage.put(chatId, message);
+    }
+
+    public void setSearchGenre(String chatId, String genre) {
+        searchGenre.put(chatId, genre);
     }
 
     public static MSG getInstance() {

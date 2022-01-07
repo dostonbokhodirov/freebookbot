@@ -1,9 +1,6 @@
 package uz.mvp.proccessors.post;
 
-import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
-import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
+import org.telegram.telegrambots.meta.api.methods.send.*;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import uz.mvp.FreeBookBot;
@@ -59,6 +56,11 @@ public class PostProcessor {
                 sendDocument.setDocument(document);
                 sendDocument.setCaption(message.getCaption());
                 BOT.executeMessage(sendDocument);
+            }
+        } else {
+            for (Integer id : usersId) {
+                SendMessage sendMessage = new SendMessage(id.toString(), message.getText());
+                BOT.executeMessage(sendMessage);
             }
         }
         State.setMenuState(chatId, MenuState.UNDEFINED);

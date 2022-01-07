@@ -12,6 +12,7 @@ import uz.mvp.buttons.InlineBoard;
 import uz.mvp.configs.LangConfig;
 import uz.mvp.configs.State;
 import uz.mvp.configs.add.BookId;
+import uz.mvp.configs.search.MSG;
 import uz.mvp.configs.search.Offset;
 import uz.mvp.emojis.Emojis;
 import uz.mvp.entity.book.Book;
@@ -37,6 +38,7 @@ public class CallbackHandler extends AbstractRepository {
     private static final BookRepository bookRepository = BookRepository.getInstance();
     private static final BookId bookId = BookId.getInstance();
     private static final Offset offset = Offset.getInstance();
+    private static final MSG msg = MSG.getInstance();
 
     public void handle(CallbackQuery callbackQuery) {
         Message message = callbackQuery.getMessage();
@@ -59,6 +61,19 @@ public class CallbackHandler extends AbstractRepository {
             deleteMessage(message, chatId);
             State.setMenuState(chatId, MenuState.UNDEFINED);
             State.setSearchState(chatId, SearchState.UNDEFINED);
+        } else if (data.equals("add")) {
+            SendMessage sendMessage;
+            if (!bookRepository.isHaveBookWithUser(chatId, fileId)) {
+                bookRepository.addDownloads(chatId, fileId);
+                sendMessage = new SendMessage(chatId, Emojis.ADD + LangConfig.get(chatId, "book.added"));
+            } else sendMessage = new SendMessage(chatId, Emojis.LOOK + LangConfig.get(chatId, "already.add"));
+            BOT.executeMessage(sendMessage);
+        } else if (data.equals("remove")) {
+            bookRepository.removeDownloads(chatId, fileId);
+            SendMessage sendMessage = new SendMessage(chatId, Emojis.ADD + LangConfig.get(chatId, "book.removed"));
+            BOT.executeMessage(sendMessage);
+        } else if (data.equals("cancelDocument")) {
+            deleteMessage(message, chatId);
         } else if (data.equals("genre")) {
             State.setSearchState(chatId, SearchState.GENRE);
             EditMessageText editMessageText = new EditMessageText();
@@ -87,6 +102,7 @@ public class CallbackHandler extends AbstractRepository {
                 State.setAddBookState(chatId, AddBookState.UNDEFINED);
                 State.setMenuState(chatId, MenuState.UNDEFINED);
             } else if (State.getSearchState(chatId).equals(SearchState.GENRE)) {
+                msg.setSearchGenre(chatId, data);
                 ArrayList<Book> books = bookRepository.getBooksByGenre(data, State.getLimitState(chatId), offset.getSearchOffset(chatId));
                 EditMessageText editMessageText = new EditMessageText();
                 editMessageText.setMessageId(message.getMessageId());
@@ -106,20 +122,8 @@ public class CallbackHandler extends AbstractRepository {
             State.setLimitState(chatId, 5);
             deleteMessage(message, chatId);
             sendMessage(chatId);
-        } else if (data.equals("six")) {
-            State.setLimitState(chatId, 6);
-            deleteMessage(message, chatId);
-            sendMessage(chatId);
-        } else if (data.equals("seven")) {
-            State.setLimitState(chatId, 7);
-            deleteMessage(message, chatId);
-            sendMessage(chatId);
         } else if (data.equals("eight")) {
             State.setLimitState(chatId, 8);
-            deleteMessage(message, chatId);
-            sendMessage(chatId);
-        } else if (data.equals("nine")) {
-            State.setLimitState(chatId, 9);
             deleteMessage(message, chatId);
             sendMessage(chatId);
         } else if (data.equals("ten")) {

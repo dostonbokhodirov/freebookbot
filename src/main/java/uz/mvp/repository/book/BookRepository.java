@@ -272,6 +272,15 @@ public class BookRepository extends AbstractRepository {
         }
     }
 
+    public void removeDownloads(String chatId, String bookId) {
+        try (Connection connection = getConnection();
+             Statement statement = connection.createStatement()) {
+            statement.execute(PConfig.get("downloads.delete").formatted(chatId, bookId));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void delete(String name) {
         name = "%" + name + "%";
         Connection connection = getConnection();
@@ -296,4 +305,5 @@ public class BookRepository extends AbstractRepository {
     public static BookRepository getInstance() {
         return instance;
     }
+
 }
