@@ -26,18 +26,18 @@ public class InlineHandler {
         String text = inlineQuery.getQuery();
         AnswerInlineQuery answerInlineQuery = new AnswerInlineQuery();
         answerInlineQuery.setInlineQueryId(inlineQuery.getId());
+        answerInlineQuery.setCacheTime(100000000);
         List<InlineQueryResult> results = new ArrayList<>();
         int i = 1;
+        List<Book> books;
         if (text.equals("")) {
-            List<Book> books = bookRepository.getAllBooks();
-            makeResult(results, i, books);
+            books = bookRepository.getAllBooks(10, 0);
         }
         else {
-            List<Book> books = bookRepository.getBooksByName(text, bookRepository.getIdBooks().size(), 0);
-            makeResult(results, i, books);
+            books = bookRepository.getBooksByName(text, 10, 0);
         }
+        makeResult(results, i, books);
         answerInlineQuery.setResults(results);
-        answerInlineQuery.setCacheTime(1000);
         BOT.executeMessage(answerInlineQuery);
     }
 

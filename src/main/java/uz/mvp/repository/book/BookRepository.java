@@ -233,12 +233,12 @@ public class BookRepository extends AbstractRepository {
         return list;
     }
 
-    public ArrayList<Book> getAllBooks() {
+    public ArrayList<Book> getAllBooks(Integer limit, Integer offset) {
         ArrayList<Book> books = new ArrayList<>();
         Connection connection = getConnection();
         try {
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(PConfig.get("books.select.all.query"));
+            ResultSet resultSet = statement.executeQuery(PConfig.get("books.select.all.query").formatted(limit, offset));
             while (resultSet.next()) {
                 Book book = Book.builder()
                         .id(resultSet.getString("id"))
